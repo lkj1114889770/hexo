@@ -1,4 +1,4 @@
-<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <div class="copyright" >
   {% set current = date(Date.now(), "YYYY") %}
   &copy; {% if theme.since and theme.since != current %} {{ theme.since }} - {% endif %}
@@ -11,14 +11,14 @@
 <div class="powered-by">
   {{ __('footer.powered', '') }}
   <span id="busuanzi_container_site_uv"> 
-  本站阅读量：<span id="busuanzi_value_site_pv"></span>人次
+  本站访问量：<span id="busuanzi_value_site_pv"></span>人次
   </span>
 </div>
 {% if theme.copyright %}
 
 <!-- <div class="powered-by">
   <span id="busuanzi_container_site_uv"> 
-  本站阅读量：<span id="busuanzi_value_site_uv"></span>人次
+  本站访问量：<span id="busuanzi_value_site_pv"></span>人次
   </span>
 </div>
 

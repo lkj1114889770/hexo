@@ -96,10 +96,12 @@ feed:
   ##feed文章最小数量
 
 # 搜索插件 hexo-generator-sitemap
-swiftype_key: CpGU9y4My9qBFNi8dtc8
+# swiftype_key: CpGU9y4My9qBFNi8dtc8
 search:
   path: search.xml
   field: post
+  format: html
+  limit: 10000
 
 # sitemap  
 sitemap:

@@ -79,8 +79,8 @@ menu_icons:
 # Schemes
 #scheme: Muse
 #scheme: Mist
-scheme: Pisces
-#scheme: Gemini
+#scheme: Pisces
+scheme: Gemini
 
 
 # ---------------------------------------------------------------
@@ -123,7 +123,7 @@ links_layout: block
 #links_layout: inline
 links:
   皮皮鲁: http://bloger.5pipi.win/
-  Kusuri's Blog: http://kusuri.io/
+  Kusuri's Blog: http://blog.kusuri.cc
   rogoso's Blog: http://rogoso.info/
 
 # Sidebar Avatar
@@ -207,7 +207,7 @@ post_meta:
 # Dependencies: https://github.com/willin/hexo-wordcount
 post_wordcount:
   item_text: true
-  wordcount: false
+  wordcount: true
   min2read: false
   separated_meta: true
 
@@ -492,7 +492,7 @@ algolia_search:
 # Local search
 # Dependencies: https://github.com/flashlab/hexo-generator-search
 local_search:
-  enable: false
+  enable: true
   # if auto, trigger search by changing input
   # if manual, trigger search by pressing enter key or search button
   trigger: auto

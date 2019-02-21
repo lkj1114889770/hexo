@@ -4,6 +4,7 @@ date: 2018-06-15 14:59:34
 tags:
 	- 深度学习
 	- 目标检测
+	- CV
 ---
 YOLO是一种全新的，与R-CNN思想截然不同的目标检测的方法。R-CNN系列网络是通过proposal region产生可能包含目标物体的bounding box，再通分类器判断是否包含物品以及物品类别，用regression对bounding的坐标、大小进行修正。YOLO则是一种end to end的方式，用一个神经网络，实现了预测出bounding box 的坐标、box中包含物体的置信度和物体的probabilities，因此检测速度更快，训练相对更加简单，当然相对来说也带来一些其他缺点。
 <!-- more -->
@@ -69,14 +70,12 @@ YOLO对边界框预测强加空间约束，因为每个网格单元只预测两�
 ### Better
 
 #### Batch Normalization
-YOLO2取消了dropout，在所有的卷积层中加入Batch Normalization
-。
+YOLO2取消了dropout，在所有的卷积层中加入Batch Normalization。
 #### High Resolution Classifier
 YOLO2将ImageNet以448×448 的分辨率微调最初的分类网络，迭代10 epochs。
 
 #### Convolutional With Anchor Boxes
-借鉴faster R-CNN的思想，引入anchor box，取消全连接层来进行预测，改用卷积层作为预测层对anchor box的offset和confidence进行预测。去除了一个池化层，使得输出特征具有更高的分辨率，将图片输入尺寸resize为416而非448，使得特征图大小为奇数，所以有一个中心单元格。目标，特别是大目标，倾向于占据图像的中心，所以在中心有一个单一的位置可以很好的预测这些目标，而不是四个位置都在中心附近。YOLO的卷积层将图像下采样32倍，所以通过使用输入图像416，我们得到13×13的输出特征图。
-同时，使用anchor box进行预测的时候，解耦空间位置预测与类别预测，对每个anchor box都预测object和class，仍然沿用YOLO1，目标检测仍然是预测proposed box和ground truth的IOU，类别预测（class predictions）仍然是存在object下的条件概率。
+借鉴faster R-CNN的思想，引入anchor box，取消全连接层来进行预测，改用卷积层作为预测层对anchor box的offset和confidence进行预测。去除了一个池化层，使得输出特征具有更高的分辨率，将图片输入尺寸resize为416而非448，使得特征图大小为奇数，所以有一个中心单元格。目标，特别是大目标，倾向于占据图像的中心，所以在中心有一个单一的位置可以很好的预测这些目标，而不是四个位置都在中心附近。YOLO的卷积层将图像下采样32倍，所以通过使用输入图像416，我们得到13×13的输出特征图。同时，使用anchor box进行预测的时候，解耦空间位置预测与类别预测，对每个anchor box都预测object和class，仍然沿用YOLO1，目标检测仍然是预测proposed box和ground truth的IOU，类别预测（class predictions）仍然是存在object下的条件概率。
 
 #### Dimension Clusters
 YOLO2不再采用手动挑选的box尺寸，而是对训练集的box尺寸进行k-means聚类，因为聚类的目的是想要更好的IOU，所以聚类的距离使用下列公式：
@@ -87,6 +86,7 @@ YOLO2不再采用手动挑选的box尺寸，而是对训练集的box尺寸进行
 <div align=center>
 	<img src="https://i.imgur.com/EkQOmSz.png" >
 </div>
+
 根据上图，k=5的时候，模型的复杂度和IOU能够得到一个不错的trade off。
 
 #### Direct location prediction
@@ -128,19 +128,19 @@ YOLO2大多数3×3的过滤器，并在每个池化步骤后将通道数量加�
 	<img src="https://i.imgur.com/TnEqUtA.png" >
 </div>
 
-ImageNet数据量更大，用于训练分类，COCO和VOC用于训练检测，ImageN对应分类有9000多种，COCO只有80找那个目标检测，通过wordTree来combine，来自分类的图片只计算分类的loss，来自检测集的图片计算完整的loss。
+ImageNet数据量更大，用于训练分类，COCO和VOC用于训练检测，ImageN对应分类有9000多种，COCO只有80种对应目标检测，通过wordTree来combine，来自分类的图片只计算分类的loss，来自检测集的图片计算完整的loss。
 
 ## YOLO v3
 
 YOLO3 对于YOLO2有了一些改进，总的来说有几点：加深了网络，用了上采样，残差网络，多尺度预测，下面详细说明。
 
 ### Bounding Box Prediction
-坐标预测仍然沿用YOLO2的，yolov3对每个bounding box预测四个坐标值(tx, ty, tw, th)，对于预测的cell（一幅图划分成S×S个网格cell）根据图像左上角的偏移(cx, cy)，以及之前得到bounding box的宽和高pw, ph可以对bounding box按如下的方式进行预测：
+坐标预测仍然沿用YOLO2的，yolov3对每个bounding box预测四个坐标值(tx, ty, tw, th)，对于预测的cell根据图像左上角的偏移(cx, cy)，以及之前得到bounding box的宽和高pw, ph可以对bounding box按如下的方式进行预测：
 <div align=center>
 	<img src="https://i.imgur.com/XShUyy1.png" >
 </div>
 
-训练的时候，loss的计算采用sum of squared error loss（平方和距离误差损失），yolov3对每个bounding box通过逻辑回归预测一个物体的得分，如果预测的这个bounding box与真实的边框值大部分重合且比其他所有预测的要好，那么这个值就为1.如果overlap没有达到一个阈值（yolov3中这里设定的阈值是0.5），那么这个预测的bounding box将会被忽略。YOLO3论文中使用的阈值是0.5.每个object智慧分配一个bounding box，所以对应没有分配有ground truth object的box，其坐标损失和预测损失不需要计入，只需考虑objectness loss。If a bounding box prior is not assigned to a ground truth object it incurs no loss for coordinate or class predictions, only objectness.
+训练的时候，loss的计算采用sum of squared error loss（平方和距离误差损失），yolov3对每个bounding box通过逻辑回归预测一个物体的得分，如果预测的这个bounding box与真实的边框值大部分重合且比其他所有预测的要好，那么这个值就为1.如果overlap没有达到一个阈值（yolov3中这里设定的阈值是0.5），那么这个预测的bounding box将会被忽略。YOLO3论文中使用的阈值是0.5.每个object只会分配一个bounding box，所以对应没有分配有ground truth object的box，其坐标损失和预测损失不需要计入，只需考虑objectness loss。If a bounding box prior is not assigned to a ground truth object it incurs no loss for coordinate or class predictions, only objectness.
 
 ### Class Prediction
 每个框预测分类，bounding box使用多标签分类（multi-label classification）。论文中说没有使用softmax分类，只是使用了简单的逻辑回归进行分类，采用的二值交叉熵损失（binary cross-entropy loss）。
@@ -148,7 +148,7 @@ Each box predicts the classes the bounding box may contain using multilabel clas
 This formulation helps when we move to more complex domains like the Open Images Dataset. In this dataset there are many overlapping labels (i.e. Woman and Person). Using a softmax imposes the assumption that each box has exactly one class which is often not the case. A multilabel approach better models the data.
 
 ### Predictions Across Scales
-YOLO3在三种不同吃的来预测box，应用一个类似于特征金字塔网络（feature pyramid network）上提前约特征，如下图：
+YOLO3在三种不同尺度来预测box，应用一个类似于特征金字塔网络（feature pyramid network）上提取特征，如下图：
 <div align=center>
 	<img src="https://i.imgur.com/AYQngjv.png" >
 </div>

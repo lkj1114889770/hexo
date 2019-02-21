@@ -11,7 +11,7 @@ PCL（Point Cloud Library）是包含各种点云算法的大型跨平台开源C
 ## PCL安装
 不用编译源码，一行命令直接apt安装，顺带安装各种依赖的乱七八糟的库
 	
-	sudo apt-get install libpcl-all 
+	sudo apt-get install libpcl-dev 
 
 再安装一些pcl可视化等软件包
 
